@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
+import { CORE_DIRECTIVES } from '@angular/common';
+import { REACTIVE_FORM_DIRECTIVES } from '@angular/forms';
+import { FruitFormComponent } from './fruit-form.component';
 
 @Component({
+    directives: [CORE_DIRECTIVES, REACTIVE_FORM_DIRECTIVES, FruitFormComponent],
     selector: 'my-app',
-    template: '<h1>My First Angular 2 App</h1>'
+    template: '<fruit-form></fruit-form>'
 })
 export class AppComponent { }
