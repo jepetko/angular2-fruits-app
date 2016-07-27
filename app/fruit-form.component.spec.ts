@@ -25,6 +25,12 @@ describe('FruitFormComponent', () => {
     input.dispatchEvent(evt);
   }
 
+  function blur(selector: string) {
+    let input: HTMLInputElement = <HTMLInputElement> fixture.nativeElement.querySelector(selector);
+    let evtBlur = new Event('blur', {bubbles: true, cancelable: false});
+    input.dispatchEvent(evtBlur);
+  }
+
   function patchChangeDetection() {
     fixture['detectChanges'] = function(checkNoChanges = true) {
       if (this.ngZone != null) {
@@ -34,6 +40,19 @@ describe('FruitFormComponent', () => {
         this._tick(checkNoChanges);
       }
     };
+  }
+
+  function clearBudgetAndLeave() {
+    fillValue('#budget', '');
+    blur('#budget');
+  };
+
+  function fillValueAndLeave(selector: string, value: any) {
+    if (typeof value === 'undefined') {
+      return;
+    }
+    fillValue(selector, value);
+    blur(selector);
   }
 
   beforeEach(() => addProviders([disableDeprecatedForms(), provideForms()]));
@@ -88,6 +107,7 @@ describe('FruitFormComponent', () => {
 
     let failure = 'There should be the exception: Expression has changed after it was checked';
     let spy: any;
+    let myIt: any;
     beforeEach(() => {
       fixture.autoDetectChanges(true);
 
@@ -102,21 +122,11 @@ describe('FruitFormComponent', () => {
       spy = jasmine.createSpy('errHandler', errHandler).and.callThrough();
     });
 
-    let myIt: any = it(`throws a "change detection error" if the fruit price > 100
-                        and and the user does not provide a budget value`, () => {
+    myIt = it(`throws a "change detection error" if the fruit price > 100
+               and and the user does not provide a budget value`, () => {
 
       fillValue('#budget', 100);
       fillValue('#fruit0', 100); // apples
-
-      let clearBudgetAndLeave = () => {
-        let input: HTMLInputElement = <HTMLInputElement> fixture.nativeElement.querySelector('#budget');
-        input.value = '';
-        let evt = new Event('input', {bubbles: true, cancelable: false});
-        input.dispatchEvent(evt);
-
-        let evtBlur = new Event('blur', {bubbles: true, cancelable: false});
-        input.dispatchEvent(evtBlur);
-      };
 
       fixture.ngZone.onError.subscribe(spy);
 
@@ -126,4 +136,28 @@ describe('FruitFormComponent', () => {
     });
 
   });
+
+  describe('monkey test', () => {
+
+    let userInputs: any[] = [
+      {budget: 70, apple: 1, pear: 2, orange: 3},
+      {apple: 3, orange: 1},
+      {budget: 0},
+      {pear: 10}
+    ];
+
+    beforeEach(() => {
+      fixture.autoDetectChanges(true);
+    });
+
+    it('survives the monkey test', () => {
+      userInputs.forEach((userInput) => {
+        fillValueAndLeave('#budget', userInput.budget);
+        fillValueAndLeave('#fruit0', userInput.apple);
+        fillValueAndLeave('#fruit1', userInput.pear);
+        fillValueAndLeave('#fruit2', userInput.orange);
+      });
+    });
+  });
+
 });
