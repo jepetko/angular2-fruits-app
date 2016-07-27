@@ -86,11 +86,24 @@ describe('FruitFormComponent', () => {
 
   describe('change detection', () => {
 
-    let myIt: any = it(`throws a "change detection error" if the fruit price > 100
-                        and and the user does not provide a budget value`, () => {
+    let failure = 'There should be the exception: Expression has changed after it was checked';
+    let spy: any;
+    beforeEach(() => {
       fixture.autoDetectChanges(true);
 
       patchChangeDetection();
+
+      let errHandler = (err: any) => {
+        myIt.result.failedExpectations = [];  // clear the failed expectations. fail again ...
+        if (err.error.message.indexOf('Expression has changed after it was checked') === -1) {
+          fail(failure);
+        }
+      };
+      spy = jasmine.createSpy('errHandler', errHandler).and.callThrough();
+    });
+
+    let myIt: any = it(`throws a "change detection error" if the fruit price > 100
+                        and and the user does not provide a budget value`, () => {
 
       fillValue('#budget', 100);
       fillValue('#fruit0', 100); // apples
@@ -105,20 +118,11 @@ describe('FruitFormComponent', () => {
         input.dispatchEvent(evtBlur);
       };
 
-      let failure = 'There should be the exception: Expression has changed after it was checked';
-      let errHandler = (err: any) => {
-        myIt.result.failedExpectations = [];
-        if (err.error.message.indexOf('Expression has changed after it was checked') === -1) {
-          fail(failure);
-        }
-      };
-      let spy = jasmine.createSpy('errHandler', errHandler).and.callThrough();
-
       fixture.ngZone.onError.subscribe(spy);
 
       clearBudgetAndLeave();
 
-      expect(spy.calls.count()).toBe(1, failure);
+      expect(spy.calls.count()).toBe(1, failure);  // error occurred => spec passed
     });
 
   });
