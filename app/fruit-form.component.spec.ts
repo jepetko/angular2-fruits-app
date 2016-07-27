@@ -142,7 +142,7 @@ describe('FruitFormComponent', () => {
     let userInputs: any[] = [
       {budget: 70, apple: 1, pear: 2, orange: 3},
       {apple: 3, orange: 1},
-      {budget: 0},
+      {budget: 0},   // <<-- causes change detection exception
       {pear: 10}
     ];
 
